@@ -102,6 +102,24 @@ nlat_c585 <- dim(lat_c585) #sets dimensions of object
 head(lat_c585)
 head(lon_c585)
 
+# ------------------- MIROC_126 -------------------
+lon_M126 <- ncvar_get(MIROC_126,"lon") #longitude
+nlon_M126 <- dim(lon_M126) #sets dimensions of object
+lat_M126 <- ncvar_get(MIROC_126,"lat") #latitude
+nlat_M126 <- dim(lat_M126) #sets dimensions of object
+
+head(lat_M126)
+head(lon_M126)
+
+# ------------------- MIROC_585 -------------------
+lon_M585 <- ncvar_get(MIROC_585,"lon") #longitude
+nlon_M585 <- dim(lon_M585) #sets dimensions of object
+lat_M585 <- ncvar_get(MIROC_585,"lat") #latitude
+nlat_M585 <- dim(lat_M585) #sets dimensions of object
+
+head(lat_M585)
+head(lon_M585)
+
 ```
 
 ```{r}
@@ -124,6 +142,21 @@ tunits_c585 <- ncatt_get(CAN_585,"time","units") # what units does the time vari
 nt_c585 <- dim(time_c585)
 
 print(tunits_c585)
+
+# ------------------- MIROC_126 -------------------
+time_M126 <- ncvar_get(MIROC_126,"time")
+tunits_M126 <- ncatt_get(MIROC_126,"time","units") # what units does the time variable use?
+nt_M126 <- dim(time_M126)
+
+print(tunits_M126)
+
+# ------------------- MIROC_585 -------------------
+time_M585 <- ncvar_get(MIROC_585,"time")
+tunits_M585 <- ncatt_get(MIROC_585,"time","units") # what units does the time variable use?
+nt_M585 <- dim(time_M585)
+
+print(tunits_M585)
+
 ```
 
 ```{r}
@@ -143,7 +176,23 @@ tdstr_c585 <- strsplit(unlist(tustr_c585)[3], "-")
 tmonth_c585 <- as.integer(unlist(tdstr_c585)[2])
 tday_c585 <- as.integer(unlist(tdstr_c585)[3])
 tyear_c585 <- as.integer(unlist(tdstr_c585)[1])
-rtime_c585 <- chron(time,origin=c(tmonth_c585, tday_c585, tyear_c585)) #chronological order
+rtime_c585 <- chron(time_c585,origin=c(tmonth_c585, tday_c585, tyear_c585)) #chronological order
+
+# ------------------- MIROC_126 -------------------
+tustr_M126 <- strsplit(tunits_M126$value, " ") 
+tdstr_M126 <- strsplit(unlist(tustr_M126)[3], "-")
+tmonth_M126 <- as.integer(unlist(tdstr_M126)[2])
+tday_M126 <- as.integer(unlist(tdstr_M126)[3])
+tyear_M126 <- as.integer(unlist(tdstr_M126)[1])
+rtime_M126 <- chron(time_M126,origin=c(tmonth_M126, tday_M126, tyear_M126)) #chronological order
+
+# ------------------- MIROC_585 -------------------
+tustr_M585 <- strsplit(tunits_M585$value, " ") 
+tdstr_M585 <- strsplit(unlist(tustr_M585)[3], "-")
+tmonth_M585 <- as.integer(unlist(tdstr_M585)[2])
+tday_M585 <- as.integer(unlist(tdstr_M585)[3])
+tyear_M585 <- as.integer(unlist(tdstr_M585)[1])
+rtime_M585 <- chron(time_M585,origin=c(tmonth_M585, tday_M585, tyear_M585)) #chronological order
 
 ```
 
@@ -160,6 +209,18 @@ TS_c585 <- ncvar_get(CAN_585, "tas") # get the surface temp variable
 dlname_c585 <- ncatt_get(CAN_585,tas,"long_name") # get the long name of the variable (tas)
 dunits_c585 <- ncatt_get(CAN_585,tas,"units") # get the units of tas
 fillvalue_c585 <- ncatt_get(CAN_585,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
+
+# ------------------- MIROC_126 -------------------
+TS_M126 <- ncvar_get(MIROC_126, "tas") # get the surface temp variable
+dlname_M126 <- ncatt_get(MIROC_126,tas,"long_name") # get the long name of the variable (tas)
+dunits_M126 <- ncatt_get(MIROC_126,tas,"units") # get the units of tas
+fillvalue_M126 <- ncatt_get(MIROC_126,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
+
+# ------------------- MIROC_585 -------------------
+TS_M585 <- ncvar_get(MIROC_585, "tas") # get the surface temp variable
+dlname_M585 <- ncatt_get(MIROC_585,tas,"long_name") # get the long name of the variable (tas)
+dunits_M585 <- ncatt_get(MIROC_585,tas,"units") # get the units of tas
+fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
 
 ```
 
@@ -185,7 +246,27 @@ tmp_slice_c585 <- TS_c585[,,month]-273.15 # convert Kelvin to Celsius
 # levelplot (heatmap) of the slice
 grid_c585 <- expand.grid(lon=lon_c585, lat=lat_c585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
 cutpts_c585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
-levelplot(tmp_slice ~ lon * lat, data=grid_c585, at=cutpts_c585, cuts=11, pretty=T, 
+levelplot(tmp_slice_c585 ~ lon * lat, data=grid_c585, at=cutpts_c585, cuts=11, pretty=T, col.regions=(rev(brewer.pal(10,"RdBu"))))
+
+
+# ------------------- MIROC_126 -------------------
+month <- 1 # month (January)
+tmp_slice <- TS_M126[,,month]-273.15 # convert Kelvin to Celsius
+
+# levelplot (heatmap) of the slice
+grid_M126 <- expand.grid(lon=lon_M126, lat=lat_M126) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
+cutpts_M126 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
+levelplot(tmp_slice ~ lon * lat, data=grid_M126, at=cutpts_M126, cuts=11, pretty=T, 
+  col.regions=(rev(brewer.pal(10,"RdBu"))))
+
+# ------------------- MIROC_585 -------------------
+month <- 1 # month (January)
+tmp_slice <- TS_M585[,,month]-273.15 # convert Kelvin to Celsius
+
+# levelplot (heatmap) of the slice
+grid_M585 <- expand.grid(lon=lon_M585, lat=lat_M585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
+cutpts_M585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
+levelplot(tmp_slice ~ lon * lat, data=grid_M585, at=cutpts_M585, cuts=11, pretty=T, 
   col.regions=(rev(brewer.pal(10,"RdBu"))))
 
 ```
@@ -210,7 +291,7 @@ lats=which(lat >= 32 & lat <= 35)
 lons=which(lon >= 241 & lon <= 245)
 
 # average over all values corresponding to each time over the region
-tsavg_canesm5 <- apply(TS_c585 [lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+tsavg_canesm5 <- apply(TS [lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
 
 # plot the time series
 clim <- data.frame(time=rtime_canesm5, tsavg_canesm5=tsavg_canesm5) 
@@ -232,6 +313,40 @@ tsavg_canesm5 <- apply(TS_c585[lons,lats,],3,mean) # 3 = dimension over which to
 clim <- data.frame(time=rtime_c585, tsavg_canesm5=tsavg_canesm5) 
 yrclim = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg_canesm5)) #group by year, and summarize to show annual average temperature
 yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique years
+
+#plot the time series: 
+ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+
+
+# ------------------- MIROC_126 -------------------
+# southern california lat/lon
+lats=which(lat_M126 >= 32 & lat_M126 <= 35)
+lons=which(lon_M126 >= 241 & lon_M126 <= 245)
+
+# average over all values corresponding to each time over the region
+tsavg_M126 <- apply(TS_M126[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+
+# plot the time series
+clim <- data.frame(time=rtime_M126, tsavg_M126=tsavg_M126) 
+yrclim = clim %>% group_by(year(rtime_M126)) %>% summarize(Tann=mean(tsavg_M126)) #group by year, and summarize to show annual average temperature
+yrclim$dt = unique(year(rtime_M126)) #create a new column with the unique years
+
+#plot the time series: 
+ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+
+
+# ------------------- MIROC_585 -------------------
+# southern california lat/lon
+lats=which(lat_M585 >= 32 & lat_M585 <= 35)
+lons=which(lon_M585 >= 241 & lon_M585 <= 245)
+
+# average over all values corresponding to each time over the region
+tsavg_M585 <- apply(TS_M585[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+
+# plot the time series
+clim <- data.frame(time=rtime_M585, tsavg_M585=tsavg_M585) 
+yrclim = clim %>% group_by(year(rtime_M585)) %>% summarize(Tann=mean(tsavg_M585)) #group by year, and summarize to show annual average temperature
+yrclim$dt = unique(year(rtime_M585)) #create a new column with the unique years
 
 #plot the time series: 
 ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
