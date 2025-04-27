@@ -36,7 +36,7 @@ library(here)
 
     -   MIROC6 ssp126 and ssp585
 
-    -   Briefly summarize the choices of model and scenario you made and the reasons (note: you don’t have to go into a lot of detail here).
+    -   Briefly summarize the choices of model and scenario you made and the reasons (note: you don’t have to go into a lot of detail here). (Natalie)
 
 2.  Load the monthly surface temperature data from these models and scenarios into the
 
@@ -224,6 +224,8 @@ fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value -->
 
 ```
 
+MADI does map 
+
 ```{r}
 # process temperature data 
 # lat x lon x time
@@ -275,11 +277,15 @@ levelplot(tmp_slice ~ lon * lat, data=grid_M585, at=cutpts_M585, cuts=11, pretty
 
 1000km or so). Provide a brief description of your region and its present climate, and the
 
-types of future impacts you expect to be important there.
+types of future impacts you expect to be important there. (Madi)
 
 4\. Plot trends in surface temperature for your region, including all models and future scenarios
 
 you identified in step 1.
+
+
+
+Natalie does time series 
 
 ```{r}
 # time series of regionally averaged data 
@@ -299,7 +305,8 @@ yrclim = clim %>% group_by(year(rtime_canesm5)) %>% summarize(Tann=mean(tsavg_ca
 yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique years
 
 #plot the time series: 
-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+c126_plot <-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+  theme_minimal()
 
 # ------------------- CAN_585 ------------------- 
 # southern california lat/lon
@@ -311,11 +318,12 @@ tsavg_canesm5 <- apply(TS_c585[lons,lats,],3,mean) # 3 = dimension over which to
 
 # plot the time series
 clim <- data.frame(time=rtime_c585, tsavg_canesm5=tsavg_canesm5) 
-yrclim = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg_canesm5)) #group by year, and summarize to show annual average temperature
-yrclim$dt = unique(year(rtime_c585)) #create a new column with the unique years
+yrclim_c585 = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg_canesm5)) #group by year, and summarize to show annual average temperature
+yrclim_c585$dt = unique(year(rtime_c585)) #create a new column with the unique years
 
 #plot the time series: 
-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+c585_plot <-ggplot(yrclim_c585, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+  theme_minimal()
 
 
 # ------------------- MIROC_126 -------------------
@@ -328,11 +336,12 @@ tsavg_M126 <- apply(TS_M126[lons,lats,],3,mean) # 3 = dimension over which to ap
 
 # plot the time series
 clim <- data.frame(time=rtime_M126, tsavg_M126=tsavg_M126) 
-yrclim = clim %>% group_by(year(rtime_M126)) %>% summarize(Tann=mean(tsavg_M126)) #group by year, and summarize to show annual average temperature
-yrclim$dt = unique(year(rtime_M126)) #create a new column with the unique years
+yrclim_M126 = clim %>% group_by(year(rtime_M126)) %>% summarize(Tann=mean(tsavg_M126)) #group by year, and summarize to show annual average temperature
+yrclim_M126$dt = unique(year(rtime_M126)) #create a new column with the unique years
 
 #plot the time series: 
-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+m126_plot <- ggplot(yrclim_M126, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+  theme_minimal()
 
 
 # ------------------- MIROC_585 -------------------
@@ -345,18 +354,76 @@ tsavg_M585 <- apply(TS_M585[lons,lats,],3,mean) # 3 = dimension over which to ap
 
 # plot the time series
 clim <- data.frame(time=rtime_M585, tsavg_M585=tsavg_M585) 
-yrclim = clim %>% group_by(year(rtime_M585)) %>% summarize(Tann=mean(tsavg_M585)) #group by year, and summarize to show annual average temperature
-yrclim$dt = unique(year(rtime_M585)) #create a new column with the unique years
+yrclim_M585 = clim %>% group_by(year(rtime_M585)) %>% summarize(Tann=mean(tsavg_M585)) #group by year, and summarize to show annual average temperature
+yrclim_M585$dt = unique(year(rtime_M585)) #create a new column with the unique years
 
 #plot the time series: 
-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+m585_plot <-ggplot(yrclim_M585, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+  theme_minimal()
 
+#patchwork plots together
+library(patchwork)
+combined_plot <- c126_plot + c585_plot + m126_plot + m585_plot + plot_layout(ncol = 2)
+combined_plot
 ```
 
 Then describe your results, addressing the following:
 
--   How large are the temperature trends over the 21st century (roughly, 2015-2100), and how statistically significant are they?
+-   How large are the temperature trends over the 21st century (roughly, 2015-2100), and how statistically significant are they? (Natalie)
 
--   How do the trend estimates compare between different models? Between different scenarios?
+A larger slope indicates a larger temperature increase over time. The slope of the line is the change in temperature per year.
+
+```{r}
+#trend estimates
+#CanESM5 SSP126
+model <- lm(Tann ~ dt, data = yrclim)
+summary(model) #slope = 2.455e+02
+
+#CanESM5 SSP585
+model_c585 <- lm(Tann ~ dt, data = yrclim_c585)
+summary(model_c585) #slope = 1.110e+02
+
+#MIROC6 SSP126
+model_M126 <- lm(Tann ~ dt, data = yrclim_M126)
+summary(model_M126) #slope = 2.790e+02
+
+#MIROC6 SSP585
+model_M585 <- lm(Tann ~ dt, data = yrclim_M585)
+summary(model_M585) #slope = 1.879e+02
+```
+
+-   How do the trend estimates compare between different models? Between different scenarios? (Madi)
+
+```{r}
+#Between different models? 
+#run a t-test comparing models across SSSP126
+t_test_results_SSP126 <- t.test(
+  yrclim$Tann, 
+  yrclim_M126$Tann, paired = FALSE, var.equal = TRUE
+)
+t_test_results_SSP126 #p-value < 2.2e-16
+
+#run a t-test comparing models across SSSP585
+t_test_results_SSP585 <- t.test(
+  yrclim_c585$Tann, 
+  yrclim_M585$Tann, paired = FALSE, var.equal = TRUE
+)
+t_test_results_SSP585 #p-value = 2.486e-13
+
+#Between different scenarios?
+#run a t-test comparing scenarios across MIROC models
+t_test_results <- t.test(
+  yrclim_M126$Tann, 
+  yrclim_M585$Tann, paired = FALSE, var.equal = TRUE
+)
+t_test_results #p-value = 1.174e-09
+
+#run a t-test comparing scenarios across CanESM models
+t_test_results_canesm5 <- t.test(
+  yrclim_c585$Tann, 
+  yrclim$Tann, paired = FALSE, var.equal = TRUE
+)
+t_test_results_canesm5 #p-value = 1.958e-07 
+```
 
 summarize the results in a two-page report including an introduction, figures/tables, and discussion.
