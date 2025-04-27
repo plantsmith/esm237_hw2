@@ -1,0 +1,66 @@
+---
+title: "Climate Projections"
+author: "Natalie Smith & Madi Calbert"
+format: 
+  html:
+    code-fold: true
+    toc: true
+    number-sections: true
+    embed-resources: true
+theme: Litera
+editor: visual
+execute:
+  echo: true
+  message: false
+  warning: false
+---
+
+This assignment will give you a chance to create your own estimates of projected future climate
+
+change for a region of your choice. To do this, you’ll need to locate, download (or read in
+
+remotely) data from climate model output, and generate some simple plots along the lines of the
+
+ones you created in Homework 1.
+
+1\. Select a sample of 2-3 different climate models and 2 different future scenarios to work with.
+
+These future scenarios will be called ‘ssp126’, ‘ssp245’, ‘ssp370’, or ‘ssp585’ (you may see
+
+others on the Internet, but let’s not worry about those here). Briefly summarize the choices of
+
+model and scenario you made and the reasons (note: you don’t have to go into a lot of detail
+
+here).
+
+2\. Load the monthly surface temperature data from these models and scenarios into the
+
+programming tool of your choice (for most people this will be R, but using Python or other
+
+languages is fine too). Note: the name of the surface temperature variable may differ
+
+depending on where you’re downloading from; I recommend getting it from the CMIP6
+
+website, where it will be called “tas”.
+
+3\. Consider a region of interest. This should be a relatively large region (think 500 miles/
+
+1000km or so). Provide a brief description of your region and its present climate, and the
+
+types of future impacts you expect to be important there.
+
+4\. Plot trends in surface temperature for your region, including all models and future scenarios
+
+you identified in step 1. Then describe your results, addressing the following:
+
+\- How large are the temperature trends over the 21st century (roughly, 2015-2100), and how
+
+statistically significant are they?
+
+\- How do the trend estimates compare between different models? Between different
+
+scenarios?
+
+You may work either individually or in groups of 2-3; then summarize the results in a two-page
+
+report including an introduction, figures/tables, and discussion.
