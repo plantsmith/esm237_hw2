@@ -1,0 +1,225 @@
+---
+title: "MIROC6"
+format: html
+---
+
+
+```{r}
+#setup
+
+#load libraries:
+library(lubridate)
+library(ggplot2)
+library(tidyverse)
+library(chron)
+library(ncdf4)
+library(RColorBrewer)
+library(lattice)
+library(abind)
+library(here)
+```
+
+
+```{r}
+#path and filename for data
+
+#CanESM5 SSP126:
+CAN_126 <- here("data", "tas_Amon_CanESM5_ssp126_r19i1p2f1_gn_201501-210012.nc")
+tas <- "tas"  # this is the name of the variable you want to look at
+
+CAN_126 <- nc_open(CAN_126)
+print(CAN_126)
+
+#CANESM5 SSP585:
+CAN_585 <- here("data", "tas_Amon_CanESM5_ssp585_r15i1p1f1_gn_201501-210012.nc")
+tas <- "tas"  # this is the name of the variable you want to look at
+
+CAN_585 <- nc_open(CAN_585)
+print(CAN_585)
+
+#--------
+
+#MIROC6 SSP126:
+MIROC_126 <- here("data", "tas_Amon_MIROC6_ssp126_r3i1p1f1_gn_201501-210012.nc")
+tas <- "tas"  # this is the name of the variable you want to look at
+
+MIROC_126 <- nc_open(MIROC_126)
+print(MIROC_126)
+
+#MIROC6 SSP585:
+MIROC_585 <- here("data", "tas_Amon_MIROC6_ssp585_r1i1p1f1_gn_201501-210012.nc")
+tas <- "tas"  # this is the name of the variable you want to look at
+
+MIROC_585  <- nc_open(MIROC_585 )
+print(MIROC_585 )
+
+```
+
+# MIROC 6
+
+### SSP126
+```{r}
+# "actually read in the data" using ncvar_get; from the data get latitude and longitude
+lon_M126 <- ncvar_get(MIROC_126,"lon") #longitude
+nlon_M126 <- dim(lon_M126) #sets dimensions of object
+lat_M126 <- ncvar_get(MIROC_126,"lat") #latitude
+nlat_M126 <- dim(lat_M126) #sets dimensions of object
+
+head(lat_M126)
+head(lon_M126)
+```
+
+```{r}
+# from the data get time
+
+#MIROC_126
+time_M126 <- ncvar_get(MIROC_126,"time")
+tunits_M126 <- ncatt_get(MIROC_126,"time","units") # what units does the time variable use?
+nt_M126 <- dim(time_M126)
+
+print(tunits_M126)
+#$hasatt [1] TRUE
+#$value [1] "days since 1850-01-01 0:0:0.0"
+#They are counted since the date January 1, 1850 at midnight (0:0:0.0)
+```
+
+```{r}
+# split into parts 
+tustr_M126 <- strsplit(tunits_M126$value, " ") 
+tdstr_M126 <- strsplit(unlist(tustr_M126)[3], "-")
+tmonth_M126 <- as.integer(unlist(tdstr_M126)[2])
+tday_M126 <- as.integer(unlist(tdstr_M126)[3])
+tyear_M126 <- as.integer(unlist(tdstr_M126)[1])
+rtime_M126 <- chron(time_M126,origin=c(tmonth_M126, tday_M126, tyear_M126)) #chronological order
+```
+
+```{r}
+# read in the temperature data: 
+TS_M126 <- ncvar_get(MIROC_126, "tas") # get the surface temp variable
+dlname_M126 <- ncatt_get(MIROC_126,tas,"long_name") # get the long name of the variable (tas)
+dunits_M126 <- ncatt_get(MIROC_126,tas,"units") # get the units of tas
+fillvalue_M126 <- ncatt_get(MIROC_126,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
+
+```
+
+```{r}
+# process temperature data 
+# lat x lon x time
+
+month <- 1 # month (January)
+tmp_slice <- TS_M126[,,month]-273.15 # convert Kelvin to Celsius
+
+# levelplot (heatmap) of the slice
+grid_M126 <- expand.grid(lon=lon_M126, lat=lat_M126) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
+cutpts_M126 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
+levelplot(tmp_slice ~ lon * lat, data=grid_M126, at=cutpts_M126, cuts=11, pretty=T, 
+  col.regions=(rev(brewer.pal(10,"RdBu"))))
+
+```
+
+```{r}
+# time series of regionally averaged data 
+
+# southern california lat/lon
+lats=which(lat_M126 >= 32 & lat_M126 <= 35)
+lons=which(lon_M126 >= 241 & lon_M126 <= 245)
+
+# average over all values corresponding to each time over the region
+tsavg_M126 <- apply(TS_M126[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+
+# plot the time series
+clim <- data.frame(time=rtime_M126, tsavg_M126=tsavg_M126) 
+yrclim = clim %>% group_by(year(rtime_M126)) %>% summarize(Tann=mean(tsavg_M126)) #group by year, and summarize to show annual average temperature
+yrclim$dt = unique(year(rtime_M126)) #create a new column with the unique years
+
+#plot the time series: 
+ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+```
+
+
+### SSP585
+
+```{r}
+# "actually read in the data" using ncvar_get; from the data get latitude and longitude
+lon_M585 <- ncvar_get(MIROC_585,"lon") #longitude
+nlon_M585 <- dim(lon_M585) #sets dimensions of object
+lat_M585 <- ncvar_get(MIROC_585,"lat") #latitude
+nlat_M585 <- dim(lat_M585) #sets dimensions of object
+
+head(lat_M585)
+head(lon_M585)
+```
+
+```{r}
+# from the data get time
+
+#MIROC_585
+time_M585 <- ncvar_get(MIROC_585,"time")
+tunits_M585 <- ncatt_get(MIROC_585,"time","units") # what units does the time variable use?
+nt_M585 <- dim(time_M585)
+
+print(tunits_M585)
+#$hasatt [1] TRUE
+#$value [1] "days since 1850-01-01 0:0:0.0"
+#They are counted since the date January 1, 1850 at midnight (0:0:0.0)
+```
+
+```{r}
+# split into parts 
+tustr_M585 <- strsplit(tunits_M585$value, " ") 
+tdstr_M585 <- strsplit(unlist(tustr_M585)[3], "-")
+tmonth_M585 <- as.integer(unlist(tdstr_M585)[2])
+tday_M585 <- as.integer(unlist(tdstr_M585)[3])
+tyear_M585 <- as.integer(unlist(tdstr_M585)[1])
+rtime_M585 <- chron(time_M585,origin=c(tmonth_M585, tday_M585, tyear_M585)) #chronological order
+```
+
+```{r}
+# read in the temperature data: 
+TS_M585 <- ncvar_get(MIROC_585, "tas") # get the surface temp variable
+dlname_M585 <- ncatt_get(MIROC_585,tas,"long_name") # get the long name of the variable (tas)
+dunits_M585 <- ncatt_get(MIROC_585,tas,"units") # get the units of tas
+fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
+
+```
+
+```{r}
+# process temperature data 
+# lat x lon x time
+
+month <- 1 # month (January)
+tmp_slice <- TS_M585[,,month]-273.15 # convert Kelvin to Celsius
+
+# levelplot (heatmap) of the slice
+grid_M585 <- expand.grid(lon=lon_M585, lat=lat_M585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
+cutpts_M585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
+levelplot(tmp_slice ~ lon * lat, data=grid_M585, at=cutpts_M585, cuts=11, pretty=T, 
+  col.regions=(rev(brewer.pal(10,"RdBu"))))
+
+```
+
+```{r}
+# time series of regionally averaged data 
+
+# southern california lat/lon
+lats=which(lat_M585 >= 32 & lat_M585 <= 35)
+lons=which(lon_M585 >= 241 & lon_M585 <= 245)
+
+# average over all values corresponding to each time over the region
+tsavg_M585 <- apply(TS_M585[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+
+# plot the time series
+clim <- data.frame(time=rtime_M585, tsavg_M585=tsavg_M585) 
+yrclim = clim %>% group_by(year(rtime_M585)) %>% summarize(Tann=mean(tsavg_M585)) #group by year, and summarize to show annual average temperature
+yrclim$dt = unique(year(rtime_M585)) #create a new column with the unique years
+
+#plot the time series: 
+ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+```
+
+
+
+
+
+
+
