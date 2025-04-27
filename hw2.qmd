@@ -30,7 +30,7 @@ library(abind)
 library(here)
 ```
 
--    Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
+1.  Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
 
     -   canESM5 ssp126 and ssp585
 
@@ -38,7 +38,7 @@ library(here)
 
     -   Briefly summarize the choices of model and scenario you made and the reasons (note: you don’t have to go into a lot of detail here).
 
--   Load the monthly surface temperature data from these models and scenarios into the
+2.  Load the monthly surface temperature data from these models and scenarios into the
 
     programming tool of your choice. Note: the name of the surface temperature variable may differ
 
