@@ -15,14 +15,6 @@ execute:
   warning: false
 ---
 
-This assignment will give you a chance to create your own estimates of projected future climate
-
-change for a region of your choice. To do this, you’ll need to locate, download (or read in
-
-remotely) data from climate model output, and generate some simple plots along the lines of the
-
-ones you created in Homework 1.
-
 ```{r}
 #setup
 
@@ -36,19 +28,23 @@ library(RColorBrewer)
 library(lattice)
 library(abind)
 library(here)
-
 ```
 
+-    Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
 
-1\. Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
+    -   canESM5 ssp126 and ssp585
 
-These future scenarios will be called **‘ssp126’, ‘ssp245’, ‘ssp370’, or ‘ssp585’** (you may see
+    -   MIROC6 ssp126 and ssp585
 
-others on the Internet, but let’s not worry about those here). Briefly summarize the choices of
+    -   Briefly summarize the choices of model and scenario you made and the reasons (note: you don’t have to go into a lot of detail here).
 
-model and scenario you made and the reasons (note: you don’t have to go into a lot of detail
+-   Load the monthly surface temperature data from these models and scenarios into the
 
-here).
+    programming tool of your choice. Note: the name of the surface temperature variable may differ
+
+    depending on where you’re downloading from; I recommend getting it from the CMIP6
+
+    website, where it will be called “tas”.
 
 ```{r}
 #path and filename for data
@@ -60,7 +56,7 @@ tas <- "tas"  # this is the name of the variable you want to look at
 CAN_126 <- nc_open(CAN_126)
 print(CAN_126)
 
-#CANESM5 SSP585:
+# ------------------- CAN_ESM5 585 ------------------- 
 CAN_585 <- here("data", "tas_Amon_CanESM5_ssp585_r15i1p1f1_gn_201501-210012.nc")
 tas <- "tas"  # this is the name of the variable you want to look at
 
@@ -88,7 +84,7 @@ print(MIROC_585 )
 ```{r}
 # "actually read in the data" using ncvar_get; from the data get latitude and longitude
 
-#CAN_126 
+# ------------------- CAN_126 ------------------- 
 lon <- ncvar_get(CAN_126 ,"lon") #longitude
 nlon <- dim(lon) #sets dimensions of object
 lat <- ncvar_get(CAN_126,"lat") #latitude
@@ -97,12 +93,21 @@ nlat <- dim(lat) #sets dimensions of object
 head(lat)
 head(lon)
 
+# ------------------- CAN_585 ------------------- 
+lon_c585 <- ncvar_get(CAN_585,"lon") #longitude
+nlon_c585 <- dim(lon_c585) #sets dimensions of object
+lat_c585 <- ncvar_get(CAN_585,"lat") #latitude
+nlat_c585 <- dim(lat_c585) #sets dimensions of object
+
+head(lat_c585)
+head(lon_c585)
+
 ```
 
 ```{r}
 # from the data get time
 
-#CAN_126
+# ------------------- CAN_126 ------------------- 
 time <- ncvar_get(CAN_126,"time")
 tunits <- ncatt_get(CAN_126,"time","units") # what units does the time varibale use?
 nt <- dim(time)
@@ -111,27 +116,50 @@ print(tunits)
 #$hasatt [1] TRUE
 #$value [1] "days since 1850-01-01 0:0:0.0"
 #They are counted since the date January 1, 1850 at midnight (0:0:0.0)
+
+
+# ------------------- CAN_585 ------------------- 
+time_c585 <- ncvar_get(CAN_585,"time")
+tunits_c585 <- ncatt_get(CAN_585,"time","units") # what units does the time varibale use?
+nt_c585 <- dim(time_c585)
+
+print(tunits_c585)
 ```
 
 ```{r}
 # split into parts 
 
-# CAN_126
+# ------------------- CAN_126 ------------------- 
 tustr <- strsplit(tunits$value, " ") 
 tdstr <- strsplit(unlist(tustr)[3], "-")
 tmonth <- as.integer(unlist(tdstr)[2])
 tday <- as.integer(unlist(tdstr)[3])
 tyear <- as.integer(unlist(tdstr)[1])
 rtime_canesm5 <- chron(time,origin=c(tmonth, tday, tyear)) #chronological order
+
+# ------------------- CAN_585 ------------------- 
+tustr_c585 <- strsplit(tunits_c585$value, " ") 
+tdstr_c585 <- strsplit(unlist(tustr_c585)[3], "-")
+tmonth_c585 <- as.integer(unlist(tdstr_c585)[2])
+tday_c585 <- as.integer(unlist(tdstr_c585)[3])
+tyear_c585 <- as.integer(unlist(tdstr_c585)[1])
+rtime_c585 <- chron(time,origin=c(tmonth_c585, tday_c585, tyear_c585)) #chronological order
+
 ```
 
 ```{r}
-# CAN_126
+# ------------------- CAN_126 ------------------- 
 # read in the temperature data: 
 TS <- ncvar_get(CAN_126, "tas") # get the surface temp variable
 dlname <- ncatt_get(CAN_126,tas,"long_name") # get the long name of the variable (tas)
-dunits <- ncatt_get(CAN_126,tas,"units") # get the units of tas
+dunits<- ncatt_get(CAN_126,tas,"units") # get the units of tas
 fillvalue <- ncatt_get(CAN_126,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
+
+# ------------------- CAN_585 ------------------- 
+TS_c585 <- ncvar_get(CAN_585, "tas") # get the surface temp variable
+dlname_c585 <- ncatt_get(CAN_585,tas,"long_name") # get the long name of the variable (tas)
+dunits_c585 <- ncatt_get(CAN_585,tas,"units") # get the units of tas
+fillvalue_c585 <- ncatt_get(CAN_585,tas,"_FillValue") # get the fill value --> value used to fill in values where there is no data
 
 ```
 
@@ -139,7 +167,7 @@ fillvalue <- ncatt_get(CAN_126,tas,"_FillValue") # get the fill value --> value 
 # process temperature data 
 # lat x lon x time
 
-# CAN_126
+# ------------------- CAN_126 ------------------- 
 month <- 1 # month (January)
 tmp_slice <- TS[,,month]-273.15 # convert Kelvin to Celsius
 
@@ -149,18 +177,40 @@ cutpts <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for
 levelplot(tmp_slice ~ lon * lat, data=grid, at=cutpts, cuts=11, pretty=T, 
   col.regions=(rev(brewer.pal(10,"RdBu"))))
 
+
+# ------------------- CAN_585 ------------------- 
+month <- 1 # month (January)
+tmp_slice_c585 <- TS_c585[,,month]-273.15 # convert Kelvin to Celsius
+
+# levelplot (heatmap) of the slice
+grid_c585 <- expand.grid(lon=lon_c585, lat=lat_c585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
+cutpts_c585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
+levelplot(tmp_slice ~ lon * lat, data=grid_c585, at=cutpts_c585, cuts=11, pretty=T, 
+  col.regions=(rev(brewer.pal(10,"RdBu"))))
+
 ```
+
+3\. Consider a region of interest. This should be a relatively large region (think 500 miles/
+
+1000km or so). Provide a brief description of your region and its present climate, and the
+
+types of future impacts you expect to be important there.
+
+4\. Plot trends in surface temperature for your region, including all models and future scenarios
+
+you identified in step 1.
 
 ```{r}
 # time series of regionally averaged data 
-# CAN_126
+
+# ------------------- CAN_126 ------------------- 
 
 # southern california lat/lon
 lats=which(lat >= 32 & lat <= 35)
 lons=which(lon >= 241 & lon <= 245)
 
 # average over all values corresponding to each time over the region
-tsavg_canesm5 <- apply(TS[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+tsavg_canesm5 <- apply(TS_c585 [lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
 
 # plot the time series
 clim <- data.frame(time=rtime_canesm5, tsavg_canesm5=tsavg_canesm5) 
@@ -170,41 +220,28 @@ yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique yea
 #plot the time series: 
 ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
 
+# ------------------- CAN_585 ------------------- 
+# southern california lat/lon
+lats=which(lat >= 32 & lat <= 35)
+lons=which(lon >= 241 & lon <= 245)
+
+# average over all values corresponding to each time over the region
+tsavg_canesm5 <- apply(TS_c585[lons,lats,],3,mean) # 3 = dimension over which to apply mean; 3 is for time
+
+# plot the time series
+clim <- data.frame(time=rtime_c585, tsavg_canesm5=tsavg_canesm5) 
+yrclim = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg_canesm5)) #group by year, and summarize to show annual average temperature
+yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique years
+
+#plot the time series: 
+ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
+
 ```
 
+Then describe your results, addressing the following:
 
+-   How large are the temperature trends over the 21st century (roughly, 2015-2100), and how statistically significant are they?
 
-2\. Load the monthly surface temperature data from these models and scenarios into the
+-   How do the trend estimates compare between different models? Between different scenarios?
 
-programming tool of your choice (for most people this will be R, but using Python or other
-
-languages is fine too). Note: the name of the surface temperature variable may differ
-
-depending on where you’re downloading from; I recommend getting it from the CMIP6
-
-website, where it will be called “tas”.
-
-
-
-3\. Consider a region of interest. This should be a relatively large region (think 500 miles/
-
-1000km or so). Provide a brief description of your region and its present climate, and the
-
-types of future impacts you expect to be important there.
-
-
-4\. Plot trends in surface temperature for your region, including all models and future scenarios
-
-you identified in step 1. Then describe your results, addressing the following:
-
-\- How large are the temperature trends over the 21st century (roughly, 2015-2100), and how
-
-statistically significant are they?
-
-\- How do the trend estimates compare between different models? Between different
-
-scenarios?
-
-You may work either individually or in groups of 2-3; then summarize the results in a two-page
-
-report including an introduction, figures/tables, and discussion.
+summarize the results in a two-page report including an introduction, figures/tables, and discussion.
