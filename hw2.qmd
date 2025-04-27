@@ -16,6 +16,10 @@ execute:
 ---
 
 ```{r}
+#| message: false
+#| warning: false
+
+
 #setup
 
 #load libraries:
@@ -47,6 +51,10 @@ library(here)
     website, where it will be called “tas”.
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 #path and filename for data
 
 #CanESM5 SSP126:
@@ -82,6 +90,10 @@ print(MIROC_585 )
 ```
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 # "actually read in the data" using ncvar_get; from the data get latitude and longitude
 
 # ------------------- CAN_126 ------------------- 
@@ -123,6 +135,10 @@ head(lon_M585)
 ```
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 # from the data get time
 
 # ------------------- CAN_126 ------------------- 
@@ -160,6 +176,10 @@ print(tunits_M585)
 ```
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 # split into parts 
 
 # ------------------- CAN_126 ------------------- 
@@ -197,6 +217,10 @@ rtime_M585 <- chron(time_M585,origin=c(tmonth_M585, tday_M585, tyear_M585)) #chr
 ```
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 # ------------------- CAN_126 ------------------- 
 # read in the temperature data: 
 TS <- ncvar_get(CAN_126, "tas") # get the surface temp variable
@@ -227,6 +251,10 @@ fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value -->
 MADI does map
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 # process temperature data 
 # lat x lon x time
 
@@ -396,7 +424,7 @@ combined_plot <- (c126_plot + c585_plot + m126_plot + m585_plot) +
   plot_annotation(
     title = "Southern California Temperature Projections",
     theme = theme(
-      plot.title = element_text(size = 20, face = "bold", hjust = 0.5) # center the title
+      plot.title = element_text(size = 20, face = "bold", hjust = 0.5) 
     ))
 
 combined_plot
@@ -409,6 +437,10 @@ Then describe your results, addressing the following:
 A larger slope indicates a larger temperature increase over time. The slope of the line is the change in temperature per year.
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 #trend estimates
 #CanESM5 SSP126
 model <- lm(Tann ~ dt, data = yrclim)
@@ -430,6 +462,10 @@ summary(model_M585) #slope = 1.879e+02
 -   How do the trend estimates compare between different models? Between different scenarios? (Madi)
 
 ```{r}
+#| message: false
+#| warning: false
+#| output: false 
+
 #Between different models? 
 #run a t-test comparing models across SSSP126
 t_test_results_SSP126 <- t.test(
