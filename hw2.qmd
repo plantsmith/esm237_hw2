@@ -312,7 +312,7 @@ tsavg_canesm5 <- apply(TS_c585[lons,lats,],3,mean) # 3 = dimension over which to
 # plot the time series
 clim <- data.frame(time=rtime_c585, tsavg_canesm5=tsavg_canesm5) 
 yrclim = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg_canesm5)) #group by year, and summarize to show annual average temperature
-yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique years
+yrclim$dt = unique(year(rtime_c585)) #create a new column with the unique years
 
 #plot the time series: 
 ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm")
