@@ -224,7 +224,7 @@ fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value -->
 
 ```
 
-MADI does map 
+MADI does map
 
 ```{r}
 # process temperature data 
@@ -283,9 +283,8 @@ types of future impacts you expect to be important there. (Madi)
 
 you identified in step 1.
 
-
-
-Natalie does time series 
+Natalie does time series
+# Time series
 
 ```{r}
 # time series of regionally averaged data 
@@ -305,7 +304,14 @@ yrclim = clim %>% group_by(year(rtime_canesm5)) %>% summarize(Tann=mean(tsavg_ca
 yrclim$dt = unique(year(rtime_canesm5)) #create a new column with the unique years
 
 #plot the time series: 
-c126_plot <-ggplot(yrclim, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+c126_plot <- ggplot(yrclim, aes(x = dt, y = Tann - 273.15)) +
+  geom_point()+
+  geom_smooth(method = "lm",color = "darkred") +
+  labs(
+    y = "Temperature (°C)",
+    x = "Year",
+    subtitle = "CanESM5 SSP126"
+  ) +
   theme_minimal()
 
 # ------------------- CAN_585 ------------------- 
@@ -322,9 +328,15 @@ yrclim_c585 = clim %>% group_by(year(rtime_c585 )) %>% summarize(Tann=mean(tsavg
 yrclim_c585$dt = unique(year(rtime_c585)) #create a new column with the unique years
 
 #plot the time series: 
-c585_plot <-ggplot(yrclim_c585, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+c585_plot <- ggplot(yrclim_c585, aes(x = dt, y = Tann - 273.15)) +
+  geom_point() +
+  geom_smooth(method = "lm",color = "darkred") +
+  labs(
+    y = "Temperature (°C)",
+    x = "Year",
+    subtitle = "CanESM5 SSP585"
+  ) +
   theme_minimal()
-
 
 # ------------------- MIROC_126 -------------------
 # southern california lat/lon
@@ -340,8 +352,16 @@ yrclim_M126 = clim %>% group_by(year(rtime_M126)) %>% summarize(Tann=mean(tsavg_
 yrclim_M126$dt = unique(year(rtime_M126)) #create a new column with the unique years
 
 #plot the time series: 
-m126_plot <- ggplot(yrclim_M126, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+m126_plot <- ggplot(yrclim_M126, aes(x = dt, y = Tann - 273.15)) +
+  geom_point() +
+  geom_smooth(method = "lm",color = "darkred") +
+  labs(
+    y = "Temperature (°C)",
+    x = "Year",
+    subtitle = "MIROC6 SSP126"
+  ) +
   theme_minimal()
+
 
 
 # ------------------- MIROC_585 -------------------
@@ -358,12 +378,27 @@ yrclim_M585 = clim %>% group_by(year(rtime_M585)) %>% summarize(Tann=mean(tsavg_
 yrclim_M585$dt = unique(year(rtime_M585)) #create a new column with the unique years
 
 #plot the time series: 
-m585_plot <-ggplot(yrclim_M585, aes(dt, Tann-273.15))+geom_point()+labs(y="Southern CA Temperature", x="Year")+ geom_smooth(method="lm") + 
+m585_plot <- ggplot(yrclim_M585, aes(x = dt, y = Tann - 273.15)) +
+  geom_point() +
+  geom_smooth(method = "lm",color = "darkred") +
+  labs(
+    y = "Temperature (°C)",
+    x = "Year",
+    subtitle = "MIROC6 SSP585"
+  ) +
   theme_minimal()
+
 
 #patchwork plots together
 library(patchwork)
-combined_plot <- c126_plot + c585_plot + m126_plot + m585_plot + plot_layout(ncol = 2)
+combined_plot <- (c126_plot + c585_plot + m126_plot + m585_plot) + 
+  plot_layout(ncol = 2) +
+  plot_annotation(
+    title = "Southern California Temperature Projections",
+    theme = theme(
+      plot.title = element_text(size = 20, face = "bold", hjust = 0.5) # center the title
+    ))
+
 combined_plot
 ```
 
