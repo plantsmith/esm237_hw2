@@ -311,8 +311,7 @@ types of future impacts you expect to be important there. (Madi)
 
 you identified in step 1.
 
-Natalie does time series
-# Time series
+Natalie does time series \# Time series
 
 ```{r}
 # time series of regionally averaged data 
