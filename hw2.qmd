@@ -34,6 +34,7 @@ library(abind)
 library(here)
 ```
 
+# Introduction 
 1.  Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
 
     -   canESM5 ssp126 and ssp585
@@ -498,3 +499,5 @@ t_test_results_canesm5 #p-value = 1.958e-07
 ```
 
 summarize the results in a two-page report including an introduction, figures/tables, and discussion.
+
+# Discussion
