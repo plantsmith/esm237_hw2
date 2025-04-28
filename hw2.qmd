@@ -34,22 +34,9 @@ library(abind)
 library(here)
 ```
 
-# Introduction 
-1.  Select a sample of **2-3 different climate models and 2 different future scenarios** to work with.
+# Introduction
 
-    -   canESM5 ssp126 and ssp585
-
-    -   MIROC6 ssp126 and ssp585
-
-    -   Briefly summarize the choices of model and scenario you made and the reasons (note: you don’t have to go into a lot of detail here). (Natalie)
-
-2.  Load the monthly surface temperature data from these models and scenarios into the
-
-    programming tool of your choice. Note: the name of the surface temperature variable may differ
-
-    depending on where you’re downloading from; I recommend getting it from the CMIP6
-
-    website, where it will be called “tas”.
+For this exercise, we selected the canESM5 and MIROC6 climate models under two future emissions scenarios: SSP1-2.6 and SSP5-8.5. The canESM5 model was selected based on its use in a provided example, while MIROC6 was chosen due to prior familiarity. Monthly surface temperature data for each model and scenario were then loaded for analysis.
 
 ```{r}
 #| message: false
@@ -430,9 +417,21 @@ combined_plot <- (c126_plot + c585_plot + m126_plot + m585_plot) +
 combined_plot
 ```
 
-Then describe your results, addressing the following:
+# Results:
 
--   How large are the temperature trends over the 21st century (roughly, 2015-2100), and how statistically significant are they? (Natalie)
+The temperature trends over the 21st century (2015–2100) show consistent warming across all models and scenarios, with varying magnitudes. The estimated slopes from linear models represent the rate of temperature increase per year, and the total projected (slope x number of years) warming by 2100 is also provided:
+
+-   **CanESM5 SSP126:** approximately 0.0240 °C per year (p = 2.95 × 10⁻⁶), total warming ≈ 2.0 °C by 2100.
+
+-   **CanESM5 SSP585**: approximately 0.0903 °C per year (p \< 2 × 10⁻¹⁶), total warming ≈ 7.7 °C by 2100.
+
+-   **MIROC6 SSP126:** approximately 0.0093 °C per year (p = 0.00060), total warming ≈ 0.8 °C by 2100.
+
+-   **MIROC6 SSP585**: approximately 0.0541 °C per year (p \< 2 × 10⁻¹⁶), total warming ≈ 4.6 °C by 2100.
+
+All models exhibit positive slopes, indicating statistically significant warming trends through the end of the century. The warming is more pronounced under higher-emissions scenarios (SSP5-8.5), with total projected warming ranging from 0.8 °C to 7.7 °C by 2100.
+
+Then describe your results, addressing the following:
 
 A larger slope indicates a larger temperature increase over time. The slope of the line is the change in temperature per year.
 
