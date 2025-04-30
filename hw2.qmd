@@ -43,9 +43,11 @@ The data used in this analysis were obtained from the Earth System Grid Federati
 
 For this analysis, we selected Southern California as our region of interest. This area is characterized by a Mediterranean climate, with warm, dry summers and mild, wet winters. The region is known for its diverse ecosystems, including coastal areas, mountains, and deserts. Future climate impacts in Southern California are expected to include increased temperatures, prolonged droughts, and more frequent and intense heatwaves and wildfires. These changes could have significant implications for water resources, agriculture, and public health.
 
-::: {style="display: flex; gap: 1em; align-items: flex-start;"}
-<img src="images/socal_map.jpg" width="2.8in"/> <img src="images/socal.jpg" width="5.55in"/>
+::: image-grid
+![socal](images/socal_map.jpg){width="300"}![socal](images/socal.jpg){width="365"}
 :::
+
+<!-- <img src="images/socal_map.jpg" width="2.8in"/> <img src="images/socal.jpg" width="5.55in"/> -->
 
 # Data Wrangling
 
