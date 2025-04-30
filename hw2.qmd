@@ -38,6 +38,18 @@ library(here)
 
 For this exercise, we selected the canESM5 and MIROC6 climate models under two future emissions scenarios: SSP1-2.6 and SSP5-8.5. The canESM5 model was selected based on its use in a provided example, while MIROC6 was chosen due to prior familiarity. Monthly surface temperature data for each model and scenario were then loaded for analysis.
 
+The data used in this analysis were obtained from the Earth System Grid Federation (ESGF) and are part of the Coupled Model Intercomparison Project Phase 6 (CMIP6). The data files contain monthly surface temperature projections for the years 2015 to 2100 under the SSP1-2.6 and SSP5-8.5 scenarios. The SSP1-2.6 scenario represents a low-emission pathway, while the SSP5-8.5 scenario represents a high-emission pathway. The data were downloaded from the ESGF and are in NetCDF format, which is commonly used for climate model output.
+
+For this analysis, we selected Southern California as our region of interest. This area is characterized by a Mediterranean climate, with warm, dry summers and mild, wet winters. The region is known for its diverse ecosystems, including coastal areas, mountains, and deserts. Future climate impacts in Southern California are expected to include increased temperatures, prolonged droughts, and more frequent and intense heatwaves and wildfires. These changes could have significant implications for water resources, agriculture, and public health.
+
+::: {style="display: flex; gap: 1em; align-items: flex-start;"}
+<img src="images/socal_map.jpg" width="2.8in"/> <img src="images/socal.jpg" width="5.55in"/>
+:::
+
+# Data Wrangling
+
+Here we load in the data and extract the relevant variables. The data is in NetCDF format so we will extract the temperature variable ('tas') and the latitude and longitude coordinates from the NetCDF files. We will also convert the time variable to a more usable format.
+
 ```{r}
 #| message: false
 #| warning: false
@@ -131,10 +143,10 @@ head(lon_M585)
 
 # ------------------- CAN_126 ------------------- 
 time <- ncvar_get(CAN_126,"time")
-tunits <- ncatt_get(CAN_126,"time","units") # what units does the time varibale use?
+tunits <- ncatt_get(CAN_126,"time","units") 
 nt <- dim(time)
 
-print(tunits)
+#print(tunits)
 #$hasatt [1] TRUE
 #$value [1] "days since 1850-01-01 0:0:0.0"
 #They are counted since the date January 1, 1850 at midnight (0:0:0.0)
@@ -142,24 +154,24 @@ print(tunits)
 
 # ------------------- CAN_585 ------------------- 
 time_c585 <- ncvar_get(CAN_585,"time")
-tunits_c585 <- ncatt_get(CAN_585,"time","units") # what units does the time varibale use?
+tunits_c585 <- ncatt_get(CAN_585,"time","units") 
 nt_c585 <- dim(time_c585)
 
-print(tunits_c585)
+#print(tunits_c585)
 
 # ------------------- MIROC_126 -------------------
 time_M126 <- ncvar_get(MIROC_126,"time")
-tunits_M126 <- ncatt_get(MIROC_126,"time","units") # what units does the time variable use?
+tunits_M126 <- ncatt_get(MIROC_126,"time","units") 
 nt_M126 <- dim(time_M126)
 
-print(tunits_M126)
+#print(tunits_M126)
 
 # ------------------- MIROC_585 -------------------
 time_M585 <- ncvar_get(MIROC_585,"time")
-tunits_M585 <- ncatt_get(MIROC_585,"time","units") # what units does the time variable use?
+tunits_M585 <- ncatt_get(MIROC_585,"time","units") 
 nt_M585 <- dim(time_M585)
 
-print(tunits_M585)
+#print(tunits_M585)
 
 ```
 
@@ -236,12 +248,15 @@ fillvalue_M585 <- ncatt_get(MIROC_585,tas,"_FillValue") # get the fill value -->
 
 ```
 
-MADI does map
+# Results
+
+## Mapping
+
+Heatmaps are used to visualize the temperature data for each model and scenario. The maps show the temperature distribution across the globe, with color gradients representing different temperature ranges for each model and each scenario. The maps highlight the largest temperature increases in the CanESM5 model under the SSP585 scenario, with the highest temperatures concentrated in the tropics and subtropics (Figure 1). The MIROC6 model shows a more moderate temperature increase, with less pronounced warming in the tropics. The maps also reveal regional differences in temperature projections, with some areas experiencing more significant warming than others.
 
 ```{r}
-#| message: false
-#| warning: false
-#| output: false 
+#| fig.cap: "**Figure 1: Heatmaps of temperature data.** The maps show the temperature distribution across the globe, with color gradients representing different temperature ranges for each model and each scenario. The color scale is consistent across all maps, allowing for direct comparison of temperature distributions."
+
 
 # process temperature data 
 # lat x lon x time
@@ -253,9 +268,15 @@ tmp_slice <- TS[,,month]-273.15 # convert Kelvin to Celsius
 # levelplot (heatmap) of the slice
 grid <- expand.grid(lon=lon, lat=lat) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
 cutpts <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
-levelplot(tmp_slice ~ lon * lat, data=grid, at=cutpts, cuts=11, pretty=T, 
-  col.regions=(rev(brewer.pal(10,"RdBu"))))
-
+map1 <- levelplot(tmp_slice ~ lon * lat, 
+                  data=grid, 
+                  at=cutpts, 
+                  cuts=11, 
+                  pretty=T,
+                  col.regions=(rev(brewer.pal(10,"RdBu"))),
+                  xlab = "Longitude",
+                  ylab = "Latitude",
+                  main = "CanESM5 SSP126")
 
 # ------------------- CAN_585 ------------------- 
 month <- 1 # month (January)
@@ -264,7 +285,12 @@ tmp_slice_c585 <- TS_c585[,,month]-273.15 # convert Kelvin to Celsius
 # levelplot (heatmap) of the slice
 grid_c585 <- expand.grid(lon=lon_c585, lat=lat_c585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
 cutpts_c585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
-levelplot(tmp_slice_c585 ~ lon * lat, data=grid_c585, at=cutpts_c585, cuts=11, pretty=T, col.regions=(rev(brewer.pal(10,"RdBu"))))
+map2 <- levelplot(tmp_slice_c585 ~ lon * lat, 
+                  data=grid_c585, at=cutpts_c585, cuts=11, pretty=T,
+                  col.regions=(rev(brewer.pal(10,"RdBu"))),
+                  xlab = "Longitude",
+                  ylab = "Latitude",
+                  main = "CanESM5 SSP585")
 
 
 # ------------------- MIROC_126 -------------------
@@ -274,8 +300,12 @@ tmp_slice <- TS_M126[,,month]-273.15 # convert Kelvin to Celsius
 # levelplot (heatmap) of the slice
 grid_M126 <- expand.grid(lon=lon_M126, lat=lat_M126) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
 cutpts_M126 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
-levelplot(tmp_slice ~ lon * lat, data=grid_M126, at=cutpts_M126, cuts=11, pretty=T, 
-  col.regions=(rev(brewer.pal(10,"RdBu"))))
+map3 <- levelplot(tmp_slice ~ lon * lat, 
+                  data=grid_M126, at=cutpts_M126, cuts=11, pretty=T,
+                  col.regions=(rev(brewer.pal(10,"RdBu"))),
+                  xlab = "Longitude",
+                  ylab = "Latitude",
+                  main = "MIROC6 SSP126")
 
 # ------------------- MIROC_585 -------------------
 month <- 1 # month (January)
@@ -284,24 +314,28 @@ tmp_slice <- TS_M585[,,month]-273.15 # convert Kelvin to Celsius
 # levelplot (heatmap) of the slice
 grid_M585 <- expand.grid(lon=lon_M585, lat=lat_M585) #values for lon (longitude) and lat (latitude) and creates a data frame (or tibble)
 cutpts_M585 <- c(-50,-40,-30,-20,-10,0,10,20,30,40,50) #vector defines cut points for the color scale in the plot
-levelplot(tmp_slice ~ lon * lat, data=grid_M585, at=cutpts_M585, cuts=11, pretty=T, 
-  col.regions=(rev(brewer.pal(10,"RdBu"))))
+map4 <- levelplot(tmp_slice ~ lon * lat, 
+                  data=grid_M585, at=cutpts_M585, cuts=11, pretty=T,
+                  col.regions=(rev(brewer.pal(10,"RdBu"))),
+                  xlab = "Longitude",
+                  ylab = "Latitude",
+                  main = "MIROC6 SSP585")
+
+
+# plot the maps together
+library(gridExtra)
+
+grid.arrange(map1, map2, map3, map4, 
+             ncol = 2)
 
 ```
 
-3\. Consider a region of interest. This should be a relatively large region (think 500 miles/
-
-1000km or so). Provide a brief description of your region and its present climate, and the
-
-types of future impacts you expect to be important there. (Madi)
-
-4\. Plot trends in surface temperature for your region, including all models and future scenarios
-
-you identified in step 1.
-
-Natalie does time series \# Time series
+## Time Series Analysis
 
 ```{r}
+#| fig.cap: "**Figure 2: Time series of temperature data for Southern California from 2015 to 2100.** The plots show the average temperature for each year, with a linear regression line indicating the trend over time. The y-axis represents temperature in degrees Celsius, and the x-axis represents the year."
+
+
 # time series of regionally averaged data 
 
 # ------------------- CAN_126 ------------------- 
@@ -417,9 +451,7 @@ combined_plot <- (c126_plot + c585_plot + m126_plot + m585_plot) +
 combined_plot
 ```
 
-# Results:
-
-The temperature trends over the 21st century (2015–2100) show consistent warming across all models and scenarios, with varying magnitudes. The estimated slopes from linear models represent the rate of temperature increase per year, and the total projected (slope x number of years) warming by 2100 is also provided:
+The temperature trends over the 21st century (2015–2100) show consistent warming across all models and scenarios, with varying magnitudes (Figure 2). The estimated slopes from linear models represent the rate of temperature increase per year, and the total projected (slope x number of years) warming by 2100 is also provided:
 
 -   **CanESM5 SSP126:** approximately 0.0240 °C per year (p = 2.95 × 10⁻⁶), total warming ≈ 2.0 °C by 2100.
 
@@ -430,10 +462,6 @@ The temperature trends over the 21st century (2015–2100) show consistent warmi
 -   **MIROC6 SSP585**: approximately 0.0541 °C per year (p \< 2 × 10⁻¹⁶), total warming ≈ 4.6 °C by 2100.
 
 All models exhibit positive slopes, indicating statistically significant warming trends through the end of the century. The warming is more pronounced under higher-emissions scenarios (SSP5-8.5), with total projected warming ranging from 0.8 °C to 7.7 °C by 2100.
-
-Then describe your results, addressing the following:
-
-A larger slope indicates a larger temperature increase over time. The slope of the line is the change in temperature per year.
 
 ```{r}
 #| message: false
@@ -457,8 +485,6 @@ summary(model_M126) #slope = 2.790e+02
 model_M585 <- lm(Tann ~ dt, data = yrclim_M585)
 summary(model_M585) #slope = 1.879e+02
 ```
-
--   How do the trend estimates compare between different models? Between different scenarios? (Madi)
 
 ```{r}
 #| message: false
@@ -496,6 +522,12 @@ t_test_results_canesm5 <- t.test(
 t_test_results_canesm5 #p-value = 1.958e-07 
 ```
 
-summarize the results in a two-page report including an introduction, figures/tables, and discussion.
-
 # Discussion
+
+When comparing the trend estimates between different models, we observe that the CanESM5 model generally predicts a higher rate of temperature increase compared to the MIROC6 model. For example, under the SSP126 scenario, CanESM5 has a slope of approximately 0.0240 °C per year, while MIROC6 has a slope of approximately 0.0093 °C per year. This indicates that CanESM5 predicts a more rapid warming trend than MIROC6 under the same emissions scenario.
+
+When comparing different scenarios within the same model, we see that both models predict a significantly higher rate of warming under the SSP585 scenario compared to the SSP126 scenario. For instance, CanESM5 predicts a slope of approximately 0.0903 °C per year under SSP585, while MIROC6 predicts a slope of approximately 0.0541 °C per year under the same scenario. This suggests that higher emissions scenarios lead to more pronounced warming trends across both models.
+
+The t-test results indicate that the differences in temperature projections between the two models and between the two scenarios are statistically significant. For example, the p-value for the t-test comparing CanESM5 and MIROC6 under SSP126 is less than 2.2e-16, indicating a highly significant difference in temperature projections between the two models. Similarly, the p-value for the t-test comparing SSP126 and SSP585 within the MIROC model is 1.174e-09, indicating a significant difference in temperature projections between the two scenarios.
+
+These results highlight the importance of considering both model selection and emissions scenarios when interpreting climate projections. The choice of model can significantly influence projected temperature trends, and higher emissions scenarios are associated with more pronounced warming. This has important implications for climate change mitigation and adaptation strategies, as different models may yield different projections for future climate impacts.
